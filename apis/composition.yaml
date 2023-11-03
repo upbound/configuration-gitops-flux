@@ -94,6 +94,9 @@ spec:
           toFieldPath: spec.forProvider.values.kustomization.spec.kubeConfig.secretRef.name
         - fromFieldPath: spec.parameters.kubeConfigSecretRef.key
           toFieldPath: spec.forProvider.values.kustomization.spec.kubeConfig.secretRef.key
+        # the sync helm-chart defines ref.branch master per default in values
+        # https://github.com/fluxcd-community/helm-charts/blob/flux2-sync-1.7.2/charts/flux2-sync/values.yaml#L46
+        # we want to use ref.name because server-side-apply is an issue when using ref.tag or ref.branch switch 
         - fromFieldPath: spec.parameters.providerConfigName
           toFieldPath: spec.forProvider.values.gitRepository.spec.ref.branch
           transforms:
