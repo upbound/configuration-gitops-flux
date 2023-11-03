@@ -1,0 +1,16 @@
+apiVersion: gitops.platform.upbound.io/v1alpha1
+kind: XFlux
+metadata:
+  name: configuration-gitops-flux
+spec:
+  parameters:
+    providerConfigName: configuration-gitops-flux
+    source:
+      git:
+        url: https://github.com/upbound/platform-ref-aws/
+        ref:
+          # refs/heads/main
+          # refs/tags/v0.1.0
+          # refs/pull/420/head
+          # refs/merge-requests/1/head
+          name: refs/heads/main

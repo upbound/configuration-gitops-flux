@@ -1,0 +1,105 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xflux.gitops.platform.upbound.io
+  labels:
+    type: gitops
+spec:
+  writeConnectionSecretsToNamespace: upbound-system
+  compositeTypeRef:
+    apiVersion: gitops.platform.upbound.io/v1alpha1
+    kind: XFlux
+  patchSets:
+    - name: Common
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.labels
+          toFieldPath: metadata.labels
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.annotations
+          toFieldPath: metadata.annotations
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.parameters.providerConfigName
+          toFieldPath: spec.providerConfigRef.name
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.parameters.deletionPolicy
+          toFieldPath: spec.deletionPolicy
+  resources:
+    - name: releaseFlux
+      base:
+        apiVersion: helm.crossplane.io/v1beta1
+        kind: Release
+        spec:
+          forProvider:
+            namespace: flux-system
+            chart:
+              name: flux2
+            values:
+              imageAutomationController:
+                create: false
+              imageReflectionController:
+                create: false
+      patches:
+        - type: PatchSet
+          patchSetName: Common
+        - fromFieldPath: spec.parameters.operators.flux.version
+          toFieldPath: spec.forProvider.chart.version
+        - type: CombineFromComposite
+          combine:
+            variables:
+              - fromFieldPath: spec.parameters.operators.flux.version
+            strategy: string
+            string:
+              fmt: https://github.com/fluxcd-community/helm-charts/releases/download/flux2-%[1]s/flux2-%[1]s.tgz
+          toFieldPath: spec.forProvider.chart.url
+
+    - name: syncFlux
+      base:
+        apiVersion: helm.crossplane.io/v1beta1
+        kind: Release
+        spec:
+          forProvider:
+            namespace: flux-system
+            chart:
+              name: flux2-sync
+              repository: https://fluxcd-community.github.io/helm-charts
+            values:
+              gitRepository:
+                spec:
+                  gitImplementation: go-git
+              kustomization:
+                spec:
+                  sourceRef:
+                    kind: GitRepository
+      patches:
+        - type: PatchSet
+          patchSetName: Common
+        - fromFieldPath: spec.parameters.operators.flux-sync.version
+          toFieldPath: spec.forProvider.chart.version
+        - fromFieldPath: spec.parameters.providerConfigName
+          toFieldPath: metadata.annotations[crossplane.io/external-name]
+        - fromFieldPath: spec.parameters.source.git.timeout
+          toFieldPath: spec.forProvider.values.gitRepository.spec.timeout
+        - fromFieldPath: spec.parameters.source.git.interval
+          toFieldPath: spec.forProvider.values.gitRepository.spec.interval
+        - fromFieldPath: spec.parameters.source.git.interval
+          toFieldPath: spec.forProvider.values.kustomization.spec.interval
+        - fromFieldPath: spec.parameters.source.git.ref.name
+          toFieldPath: spec.forProvider.values.gitRepository.spec.ref.name
+        - fromFieldPath: spec.parameters.source.git.url
+          toFieldPath: spec.forProvider.values.gitRepository.spec.url
+        - fromFieldPath: spec.parameters.source.git.path
+          toFieldPath: spec.forProvider.values.kustomization.spec.path
+        - fromFieldPath: spec.parameters.kubeConfigSecretRef.name
+          toFieldPath: spec.forProvider.values.kustomization.spec.kubeConfig.secretRef.name
+        - fromFieldPath: spec.parameters.kubeConfigSecretRef.key
+          toFieldPath: spec.forProvider.values.kustomization.spec.kubeConfig.secretRef.key
+        - fromFieldPath: spec.parameters.providerConfigName
+          toFieldPath: spec.forProvider.values.gitRepository.spec.ref.branch
+          transforms:
+            - type: match
+              match:
+                patterns:
+                  - type: regexp
+                    regexp: '.*'
+                    result: ''
