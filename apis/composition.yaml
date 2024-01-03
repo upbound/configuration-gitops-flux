@@ -9,100 +9,118 @@ spec:
   compositeTypeRef:
     apiVersion: gitops.platform.upbound.io/v1alpha1
     kind: XFlux
-  patchSets:
-    - name: Common
-      patches:
-        - type: FromCompositeFieldPath
-          fromFieldPath: metadata.labels
-          toFieldPath: metadata.labels
-        - type: FromCompositeFieldPath
-          fromFieldPath: metadata.annotations
-          toFieldPath: metadata.annotations
-        - type: FromCompositeFieldPath
-          fromFieldPath: spec.parameters.providerConfigName
-          toFieldPath: spec.providerConfigRef.name
-        - type: FromCompositeFieldPath
-          fromFieldPath: spec.parameters.deletionPolicy
-          toFieldPath: spec.deletionPolicy
-  resources:
-    - name: releaseFlux
-      base:
-        apiVersion: helm.crossplane.io/v1beta1
-        kind: Release
-        spec:
-          forProvider:
-            namespace: flux-system
-            chart:
-              name: flux2
-            values:
-              imageAutomationController:
-                create: false
-              imageReflectionController:
-                create: false
-      patches:
-        - type: PatchSet
-          patchSetName: Common
-        - fromFieldPath: spec.parameters.operators.flux.version
-          toFieldPath: spec.forProvider.chart.version
-        - type: CombineFromComposite
-          combine:
-            variables:
-              - fromFieldPath: spec.parameters.operators.flux.version
-            strategy: string
-            string:
-              fmt: https://github.com/fluxcd-community/helm-charts/releases/download/flux2-%[1]s/flux2-%[1]s.tgz
-          toFieldPath: spec.forProvider.chart.url
+  mode: Pipeline
+  pipeline:
+    - step: patch-and-transform
+      functionRef:
+        name: upbound-function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        patchSets:
+          - name: Common
+            patches:
+              - fromFieldPath: metadata.labels
+                toFieldPath: metadata.labels
+                type: FromCompositeFieldPath
+              - fromFieldPath: metadata.annotations
+                toFieldPath: metadata.annotations
+                type: FromCompositeFieldPath
+              - fromFieldPath: spec.parameters.providerConfigName
+                toFieldPath: spec.providerConfigRef.name
+                type: FromCompositeFieldPath
+              - fromFieldPath: spec.parameters.deletionPolicy
+                toFieldPath: spec.deletionPolicy
+                type: FromCompositeFieldPath
+        resources:
+          - name: releaseFlux
+            base:
+              apiVersion: helm.crossplane.io/v1beta1
+              kind: Release
+              spec:
+                forProvider:
+                  chart:
+                    name: flux2
+                  namespace: flux-system
+                  values:
+                    imageAutomationController:
+                      create: false
+                    imageReflectionController:
+                      create: false
+            patches:
+              - type: PatchSet
+                patchSetName: Common
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.operators.flux.version
+                toFieldPath: spec.forProvider.chart.version
+              - type: CombineFromComposite
+                combine:
+                  strategy: string
+                  string:
+                    fmt: https://github.com/fluxcd-community/helm-charts/releases/download/flux2-%[1]s/flux2-%[1]s.tgz
+                  variables:
+                    - fromFieldPath: spec.parameters.operators.flux.version
+                toFieldPath: spec.forProvider.chart.url
 
-    - name: syncFlux
-      base:
-        apiVersion: helm.crossplane.io/v1beta1
-        kind: Release
-        spec:
-          forProvider:
-            namespace: flux-system
-            chart:
-              name: flux2-sync
-              repository: https://fluxcd-community.github.io/helm-charts
-            values:
-              gitRepository:
-                spec:
-                  gitImplementation: go-git
-              kustomization:
-                spec:
-                  sourceRef:
-                    kind: GitRepository
-      patches:
-        - type: PatchSet
-          patchSetName: Common
-        - fromFieldPath: spec.parameters.operators.flux-sync.version
-          toFieldPath: spec.forProvider.chart.version
-        - fromFieldPath: spec.parameters.providerConfigName
-          toFieldPath: metadata.annotations[crossplane.io/external-name]
-        - fromFieldPath: spec.parameters.source.git.timeout
-          toFieldPath: spec.forProvider.values.gitRepository.spec.timeout
-        - fromFieldPath: spec.parameters.source.git.interval
-          toFieldPath: spec.forProvider.values.gitRepository.spec.interval
-        - fromFieldPath: spec.parameters.source.git.interval
-          toFieldPath: spec.forProvider.values.kustomization.spec.interval
-        - fromFieldPath: spec.parameters.source.git.ref.name
-          toFieldPath: spec.forProvider.values.gitRepository.spec.ref.name
-        - fromFieldPath: spec.parameters.source.git.url
-          toFieldPath: spec.forProvider.values.gitRepository.spec.url
-        - fromFieldPath: spec.parameters.source.git.path
-          toFieldPath: spec.forProvider.values.kustomization.spec.path
-        - fromFieldPath: spec.parameters.kubeConfigSecretRef.name
-          toFieldPath: spec.forProvider.values.kustomization.spec.kubeConfig.secretRef.name
-        - fromFieldPath: spec.parameters.kubeConfigSecretRef.key
-          toFieldPath: spec.forProvider.values.kustomization.spec.kubeConfig.secretRef.key
-        # the sync helm-chart defines ref.branch master per default in values
-        # https://github.com/fluxcd-community/helm-charts/blob/flux2-sync-1.7.2/charts/flux2-sync/values.yaml#L46
-        # we want to use ref.name because server-side-apply is an issue when using ref.tag or ref.branch switch 
-        - fromFieldPath: spec.parameters.providerConfigName
-          toFieldPath: spec.forProvider.values.gitRepository.spec.ref.branch
-          transforms:
-            - type: match
-              match:
-                patterns:
-                  - type: regexp
-                    regexp: '.*'
-                    result: ''
+          - name: syncFlux
+            base:
+              apiVersion: helm.crossplane.io/v1beta1
+              kind: Release
+              spec:
+                forProvider:
+                  chart:
+                    name: flux2-sync
+                    repository: https://fluxcd-community.github.io/helm-charts
+                  namespace: flux-system
+                  values:
+                    gitRepository:
+                      spec:
+                        gitImplementation: go-git
+                    kustomization:
+                      spec:
+                        sourceRef:
+                          kind: GitRepository
+            patches:
+              - type: PatchSet
+                patchSetName: Common
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.operators.flux-sync.version
+                toFieldPath: spec.forProvider.chart.version
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.providerConfigName
+                toFieldPath: metadata.annotations[crossplane.io/external-name]
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.source.git.timeout
+                toFieldPath: spec.forProvider.values.gitRepository.spec.timeout
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.source.git.interval
+                toFieldPath: spec.forProvider.values.gitRepository.spec.interval
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.source.git.interval
+                toFieldPath: spec.forProvider.values.kustomization.spec.interval
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.source.git.ref.name
+                toFieldPath: spec.forProvider.values.gitRepository.spec.ref.name
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.source.git.url
+                toFieldPath: spec.forProvider.values.gitRepository.spec.url
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.source.git.path
+                toFieldPath: spec.forProvider.values.kustomization.spec.path
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.kubeConfigSecretRef.name
+                toFieldPath: spec.forProvider.values.kustomization.spec.kubeConfig.secretRef.name
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.kubeConfigSecretRef.key
+                toFieldPath: spec.forProvider.values.kustomization.spec.kubeConfig.secretRef.key
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.providerConfigName
+                toFieldPath: spec.forProvider.values.gitRepository.spec.ref.branch
+                transforms:
+                  - type: match
+                    match:
+                      fallbackValue: null
+                      patterns:
+                        - type: regexp
+                          regexp: .*
+                          result: ""

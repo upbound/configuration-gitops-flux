@@ -14,7 +14,11 @@ metadata:
       that you can copy and customize to meet the exact needs of your organization!
 spec:
   crossplane:
-    version: ">=v1.13.2-0"
+    version: ">=v1.14.1-0"
   dependsOn:
     - provider: xpkg.upbound.io/crossplane-contrib/provider-helm
-      version: ">=v0.15.0"
+      # renovate: datasource=github-releases depName=crossplane-contrib/provider-helm
+      version: "v0.16.0"
+    - function: xpkg.upbound.io/upbound/function-patch-and-transform
+      # renovate: datasource=github-releases depName=upbound/function-patch-and-transform
+      version: "v0.2.1"
