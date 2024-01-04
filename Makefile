@@ -66,4 +66,12 @@ uptest: $(UPTEST) $(KUBECTL) $(KUTTL)
 
 e2e: build controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME) uptest
 
-.PHONY: uptest e2e
+render:
+	crossplane beta render examples/flux-xr.yaml apis/composition.yaml examples/functions.yaml -r
+
+yamllint:
+	@$(INFO) running yamllint
+	@yamllint ./apis || $(FAIL)
+	@$(OK) running yamllint
+
+.PHONY: uptest e2e render yamllint
