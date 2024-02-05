@@ -12,8 +12,8 @@ The core components of a custom API in [Crossplane](https://docs.crossplane.io/v
 
 In this specific configuration, the Flux API contains:
 
-- **an Flux (/apis/definition.yaml) custom resource type.**
-- **Composition of the Flux resources:** Configured in [/apis/composition.yaml](/apis/composition.yaml), it provisions an Flux resources in the `upbound-system` namespace.
+- **a Flux (/apis/definition.yaml) custom resource type.**
+- **Composition of the Flux resources:** Configured in [/apis/composition.yaml](/apis/composition.yaml), it provisions Flux resources in the `upbound-system` namespace.
 
 
 This repository contains an Composite Resource (XR) file.
@@ -24,9 +24,9 @@ This repository contains an Composite Resource (XR) file.
 apiVersion: pkg.crossplane.io/v1
 kind: Configuration
 metadata:
-  name: PACKAGE NAME
+  name: configuration-gitops-flux
 spec:
-  package: PACKAGE SPEC
+  package: xpkg.upbound.io/upbound/configuration-gitops-flux:v0.2.0
 ```
 
 ## Next steps
