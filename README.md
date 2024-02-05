@@ -1,18 +1,20 @@
-# GitOps Flux Configuration
+# Flux Configuration
 
-This repository contains a [configuration](https://docs.crossplane.io/v1.11/concepts/packages/#configuration-packages), tailored for users establishing their initial control plane with [Upbound](https://cloud.upbound.io). This configuration deploys fully managed Flux instances, allowing you to integrate GitOps practices into your workflow.
+
+This repository contains a [Crossplane configuration](https://docs.crossplane.io/v1.11/concepts/packages/#configuration-packages), tailored for users establishing their initial control plane with [Upbound](https://cloud.upbound.io). This configuration deploys fully managed Flux instances allowing you to integrate GitOps practices into your workflow.
 
 ## Overview
 
 The core components of a custom API in [Crossplane](https://docs.crossplane.io/v1.11/getting-started/introduction/) include:
 
 - **CompositeResourceDefinition (XRD):** Defines the API's structure.
-- **Composition(s):** Implements the API by orchestrating a set of managed resources.
+- **Composition(s):** Implements the API by orchestrating a set of Crossplane managed resources.
 
-In this specific configuration, the [Flux] API contains:
+In this specific configuration, the Flux API contains:
 
-- **an [](/apis/definition.yaml) custom resource type.**
-- **Composition of the [] resources:** Configured in [/apis/composition.yaml](/apis/composition.yaml), it provisions an [] cluster and fundamental security and networking resources in the `upbound-system` namespace.
+- **an Flux (/apis/definition.yaml) custom resource type.**
+- **Composition of the Flux resources:** Configured in [/apis/composition.yaml](/apis/composition.yaml), it provisions an Flux resources in the `upbound-system` namespace.
+
 
 This repository contains an Composite Resource (XR) file.
 
@@ -22,9 +24,9 @@ This repository contains an Composite Resource (XR) file.
 apiVersion: pkg.crossplane.io/v1
 kind: Configuration
 metadata:
-  name: configuration-gitops-flux
+  name: PACKAGE NAME
 spec:
-  package: xpkg.upbound.io/upbound/configuration-gitops-flux:v0.2.0
+  package: PACKAGE SPEC
 ```
 
 ## Next steps
