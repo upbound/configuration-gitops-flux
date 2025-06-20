@@ -50,7 +50,7 @@ spec:
                       default:
                         flux:
                           version: "2.10.6"
-                        flux-sync:
+                        fluxSync:
                           version: "1.7.2"
                       properties:
                         flux:
@@ -63,7 +63,7 @@ spec:
                               default: "2.10.6"
                           required:
                             - version
-                        flux-sync:
+                        fluxSync:
                           description: Configuration for the Flux Sync Helm-Chart.
                           type: object
                           properties:
