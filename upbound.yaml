@@ -1,0 +1,19 @@
+apiVersion: meta.dev.upbound.io/v1alpha1
+kind: Project
+metadata:
+  name: configuration-gitops-flux
+spec:
+  dependsOn:
+  - provider: xpkg.upbound.io/upbound/provider-helm
+    version: v0
+  - function: xpkg.upbound.io/crossplane-contrib/function-auto-ready
+    version: '>=v0.0.0'
+  description: Crossplane configuration for deploying Flux GitOps instances
+  license: Apache-2.0
+  maintainer: Upbound <support@upbound.io>
+  readme: |
+    This Crossplane configuration is a starting point to use gitops in your own internal cloud.
+    To learn more checkout the [GitHub repo](https://github.com/upbound/configuration-gitops-flux/)
+    that you can copy and customize to meet the exact needs of your organization!
+  repository: xpkg.upbound.io/upbound/configuration-gitops-flux
+  source: github.com/upbound/configuration-gitops-flux

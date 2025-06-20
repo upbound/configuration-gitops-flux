@@ -5,12 +5,17 @@ metadata:
 spec:
   parameters:
     providerConfigName: configuration-gitops-flux
+    deletionPolicy: Delete
+    operators:
+      flux:
+        version: "2.10.6"
+      fluxSync:
+        version: "1.7.2"
     source:
       git:
         url: https://github.com/upbound/platform-ref-aws/
         ref:
-          # refs/heads/main
-          # refs/tags/v0.1.0
-          # refs/pull/420/head
-          # refs/merge-requests/1/head
           name: refs/heads/main
+        interval: "5m0s"
+        timeout: "60s"
+        path: "/"
