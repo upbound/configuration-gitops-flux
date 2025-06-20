@@ -16,7 +16,6 @@ _items = [
                 gitopsv1alpha1.XFlux {
                     metadata = {
                         name = "test-flux-instance"
-                        namespace = "default"
                     }
                     spec = {
                         parameters = {
@@ -113,7 +112,7 @@ _items = [
                                 instanceType = "t3.small"
                             }
                             region = "us-west-1"
-                            version = "1.27"
+                            version = "1.29"
                         }
                         writeConnectionSecretToRef = {
                             name = "configuration-gitops-flux-kubeconfig"
