@@ -37,6 +37,7 @@ _items = [
         spec = {
             providerConfigRef = { name = _providerConfigName }
             deletionPolicy = _deletionPolicy
+            rollbackLimit = 15            # More rollback attempts for resilience
             forProvider = {
                 chart = {
                     name = "flux2"
@@ -48,6 +49,9 @@ _items = [
                     imageAutomationController = { create = False }
                     imageReflectionController = { create = False }
                 }
+                # Resilience configurations to handle webhook race conditions
+                wait = True               # Wait for resources to be ready
+                waitTimeout = "900s"      # 15 minute timeout to handle webhook delays
             }
         }
     }
@@ -61,6 +65,7 @@ _items = [
         spec = {
             providerConfigRef = { name = _providerConfigName }
             deletionPolicy = _deletionPolicy
+            rollbackLimit = 15            # More rollback attempts for resilience
             forProvider = {
                 chart = {
                     name = "flux2-sync"
@@ -95,6 +100,9 @@ _items = [
                         }
                     }
                 }
+                # Resilience configurations to handle webhook race conditions
+                wait = True               # Wait for resources to be ready
+                waitTimeout = "900s"      # 15 minute timeout to handle webhook delays
             }
         }
     }
