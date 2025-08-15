@@ -22,8 +22,8 @@ _items = [
                             providerConfigName = "uptest-gitops-flux-cluster"
                             deletionPolicy = "Delete"
                             operators = {
-                                flux = { version = "2.10.6" }
-                                fluxSync = { version = "1.7.2" }
+                                flux = { version = "2.16.4" }
+                                fluxSync = { version = "1.13.4" }
                             }
                             source = {
                                 git = {
@@ -43,7 +43,7 @@ _items = [
                     apiVersion: "pkg.crossplane.io/v1"
                     kind: "Configuration"
                     metadata.name: "configuration-aws-eks"
-                    spec.package: "xpkg.upbound.io/upbound/configuration-aws-eks:v0.18.2"
+                    spec.package: "xpkg.upbound.io/upbound/configuration-aws-eks:v0.19.0"
                 }
                 {
                     apiVersion: "pkg.crossplane.io/v1"
@@ -112,7 +112,7 @@ _items = [
                                 instanceType = "t3.small"
                             }
                             region = "us-west-1"
-                            version = "1.29"
+                            version = "1.33"
                         }
                         writeConnectionSecretToRef = {
                             name = "configuration-gitops-flux-kubeconfig"

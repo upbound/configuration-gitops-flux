@@ -49,9 +49,9 @@ _items = [
                     imageAutomationController = { create = False }
                     imageReflectionController = { create = False }
                 }
-                # Resilience configurations to handle webhook race conditions
+                # Resilience configurations to handle webhook race conditions and rate limiting
                 wait = True               # Wait for resources to be ready
-                waitTimeout = "900s"      # 15 minute timeout to handle webhook delays
+                waitTimeout = "1800s"     # 30 minute timeout to handle webhook delays and rate limiting
             }
         }
     }
@@ -100,9 +100,9 @@ _items = [
                         }
                     }
                 }
-                # Resilience configurations to handle webhook race conditions
+                # Resilience configurations to handle webhook race conditions and rate limiting
                 wait = True               # Wait for resources to be ready
-                waitTimeout = "900s"      # 15 minute timeout to handle webhook delays
+                waitTimeout = "1800s"     # 30 minute timeout to handle webhook delays and rate limiting
             }
         }
     }
