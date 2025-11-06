@@ -1,15 +1,15 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: xflux.gitops.platform.upbound.io
+  name: fluxes.gitops.platform.upbound.io
 spec:
   compositeTypeRef:
     apiVersion: gitops.platform.upbound.io/v1alpha1
-    kind: XFlux
+    kind: Flux
   mode: Pipeline
   pipeline:
   - functionRef:
-      name: upbound-configuration-gitops-fluxxflux
+      name: upbound-configuration-gitops-fluxflux
     step: xflux
   - functionRef:
       name: crossplane-contrib-function-auto-ready

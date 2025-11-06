@@ -1,11 +1,12 @@
 apiVersion: gitops.platform.upbound.io/v1alpha1
-kind: XFlux
+kind: Flux
 metadata:
   name: configuration-gitops-flux
+  namespace: default
 spec:
   parameters:
     providerConfigName: configuration-gitops-flux
-    deletionPolicy: Delete
+    managementPolicies: ["*"]
     operators:
       flux:
         version: "2.10.6"

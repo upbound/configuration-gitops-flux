@@ -1,12 +1,13 @@
-apiVersion: apiextensions.crossplane.io/v1
+apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
-  name: xflux.gitops.platform.upbound.io
+  name: fluxes.gitops.platform.upbound.io
 spec:
+  scope: Namespaced
   group: gitops.platform.upbound.io
   names:
-    kind: XFlux
-    plural: xflux
+    kind: Flux
+    plural: fluxes
   versions:
     - name: v1alpha1
       served: true
@@ -25,13 +26,19 @@ spec:
                     providerConfigName:
                       type: string
                       description: Crossplane ProviderConfig to use for provisioning this resources
-                    deletionPolicy:
-                      description: Delete the external resources when the Claim/XR is deleted. Defaults to Delete
-                      enum:
-                        - Delete
-                        - Orphan
-                      type: string
-                      default: Delete
+                    managementPolicies:
+                      description: ManagementPolicies for the Helm resources. Defaults to ["*"] which includes all operations (Create, Observe, Update, Delete, LateInitialize). To orphan resources on deletion, use ["Create", "Observe", "Update", "LateInitialize"].
+                      type: array
+                      items:
+                        type: string
+                        enum:
+                          - "*"
+                          - Create
+                          - Observe
+                          - Update
+                          - Delete
+                          - LateInitialize
+                      default: ["*"]
                     kubeConfigSecretRef:
                       description: The KubeConfig for reconciling the Kustomization on a
                         remote cluster.
@@ -122,5 +129,5 @@ spec:
                         - git
                   required:
                     - providerConfigName
-                    - deletionPolicy
+                    - managementPolicies
                     - source
