@@ -10,7 +10,10 @@ _items = [
     metav1alpha1.E2ETest{
         metadata.name: "flux-e2e-test"
         spec= {
-            crossplane.autoUpgrade.channel: "Rapid"
+            crossplane = {
+                version = "2.1.3-up.2"
+                autoUpgrade.channel = "Rapid"
+            }
             defaultConditions: ["Ready"]
             manifests: [
                 gitopsv1alpha1.Flux {
@@ -44,13 +47,13 @@ _items = [
                     apiVersion: "pkg.crossplane.io/v1"
                     kind: "Configuration"
                     metadata.name: "configuration-aws-eks"
-                    spec.package: "xpkg.upbound.io/upbound/configuration-aws-eks:v0.19.0"
+                    spec.package: "xpkg.upbound.io/upbound/configuration-aws-eks:v2.0.0"
                 }
                 {
                     apiVersion: "pkg.crossplane.io/v1"
                     kind: "Configuration"
                     metadata.name: "configuration-aws-network"
-                    spec.package: "xpkg.upbound.io/upbound/configuration-aws-network:v0.24.0"
+                    spec.package: "xpkg.upbound.io/upbound/configuration-aws-network:v2.0.0"
                 }
                 {
                     apiVersion: "aws.upbound.io/v1beta1"
