@@ -58,7 +58,10 @@ _items = [
                 {
                     apiVersion: "aws.upbound.io/v1beta1"
                     kind: "ProviderConfig"
-                    metadata.name: "default"
+                    metadata = {
+                        name = "default"
+                        namespace = "default"
+                    }
                     spec.credentials = {
                         source = "Upbound"
                         upbound = {
