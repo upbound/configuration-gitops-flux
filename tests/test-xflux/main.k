@@ -75,9 +75,9 @@ _items = [
                     }
                 }
             ]
-            compositionPath: "apis/xflux/composition.yaml"
+            compositionPath: "apis/flux/composition.yaml"
             xrPath: "examples/flux-xr.yaml"
-            xrdPath: "apis/xflux/definition.yaml"
+            xrdPath: "apis/flux/definition.yaml"
             timeoutSeconds: 120
             validate: False
         }
