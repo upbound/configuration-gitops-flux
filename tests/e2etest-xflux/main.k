@@ -1,6 +1,6 @@
 
-import models.io.crossplane.helm.v1alpha1 as helmv1alpha1
-import models.io.crossplane.helm.v1beta1 as helmv1beta1
+import models.io.crossplane.helmm.v1alpha1 as helmv1alpha1
+import models.io.crossplane.helmm.v1beta1 as helmv1beta1
 import models.io.upbound.dev.meta.v1alpha1 as metav1alpha1
 import models.io.upbound.platform.gitops.v1alpha1 as gitopsv1alpha1
 import models.k8s.apimachinery.pkg.apis.meta.v1 as metav1
@@ -13,14 +13,15 @@ _items = [
             crossplane.autoUpgrade.channel: "Rapid"
             defaultConditions: ["Ready"]
             manifests: [
-                gitopsv1alpha1.XFlux {
+                gitopsv1alpha1.Flux {
                     metadata = {
                         name = "test-flux-instance"
+                        namespace = "default"
                     }
                     spec = {
                         parameters = {
                             providerConfigName = "uptest-gitops-flux-cluster"
-                            deletionPolicy = "Delete"
+                            managementPolicies = ["*"]
                             operators = {
                                 flux = { version = "2.16.4" }
                                 fluxSync = { version = "1.13.4" }
