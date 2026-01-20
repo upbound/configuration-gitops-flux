@@ -1,8 +1,8 @@
 
 import models.io.upbound.platform.gitops.v1alpha1 as gitopsv1alpha1
-import models.io.crossplane.helm.v1beta1 as helmv1beta1
+import models.io.crossplane.helmm.v1beta1 as helmv1beta1
 
-oxr = gitopsv1alpha1.XFlux{**option("params").oxr}
+oxr = gitopsv1alpha1.Flux{**option("params").oxr}
 
 _metadata = lambda name: str -> any {
     {
@@ -14,7 +14,7 @@ _metadata = lambda name: str -> any {
 
 # Extract parameters from XR spec
 _providerConfigName = oxr.spec?.parameters?.providerConfigName or ""
-_deletionPolicy = oxr.spec?.parameters?.deletionPolicy or "Delete"
+_managementPolicies = oxr.spec?.parameters?.managementPolicies or ["*"]
 
 # Flux operator configuration
 _fluxVersion = oxr.spec?.parameters?.operators?.flux?.version or "2.10.6"
@@ -35,8 +35,11 @@ _items = [
     helmv1beta1.Release {
         metadata = _metadata("release-flux")
         spec = {
-            providerConfigRef = { name = _providerConfigName }
-            deletionPolicy = _deletionPolicy
+            providerConfigRef = {
+                kind = "ProviderConfig"
+                name = _providerConfigName
+            }
+            managementPolicies = _managementPolicies
             rollbackLimit = 15            # More rollback attempts for resilience
             forProvider = {
                 chart = {
@@ -63,8 +66,11 @@ _items = [
             }
         }
         spec = {
-            providerConfigRef = { name = _providerConfigName }
-            deletionPolicy = _deletionPolicy
+            providerConfigRef = {
+                kind = "ProviderConfig"
+                name = _providerConfigName
+            }
+            managementPolicies = _managementPolicies
             rollbackLimit = 15            # More rollback attempts for resilience
             forProvider = {
                 chart = {
@@ -91,12 +97,12 @@ _items = [
                             sourceRef = { kind = "GitRepository" }
                             interval = _gitInterval
                             path = _gitPath
-                            kubeConfig = {
+                            **({kubeConfig = {
                                 secretRef = {
                                     name = _kubeConfigName
                                     key = _kubeConfigKey
                                 }
-                            } if _kubeConfigName else None
+                            }} if _kubeConfigName else {})
                         }
                     }
                 }

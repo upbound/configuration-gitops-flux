@@ -4,9 +4,13 @@ metadata:
   name: configuration-gitops-flux
 spec:
   dependsOn:
-  - provider: xpkg.upbound.io/upbound/provider-helm
-    version: v0
-  - function: xpkg.upbound.io/crossplane-contrib/function-auto-ready
+  - apiVersion: pkg.crossplane.io/v1
+    kind: Provider
+    package: xpkg.upbound.io/upbound/provider-helm
+    version: v1
+  - apiVersion: pkg.crossplane.io/v1
+    kind: Function
+    package: xpkg.upbound.io/crossplane-contrib/function-auto-ready
     version: '>=v0.0.0'
   description: Crossplane configuration for deploying Flux GitOps instances
   license: Apache-2.0

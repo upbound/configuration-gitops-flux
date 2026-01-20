@@ -1,6 +1,6 @@
 
-import models.io.crossplane.helm.v1alpha1 as helmv1alpha1
-import models.io.crossplane.helm.v1beta1 as helmv1beta1
+import models.io.crossplane.helmm.v1alpha1 as helmv1alpha1
+import models.io.crossplane.helmm.v1beta1 as helmv1beta1
 import models.io.upbound.dev.meta.v1alpha1 as metav1alpha1
 import models.io.upbound.platform.gitops.v1alpha1 as gitopsv1alpha1
 import models.k8s.apimachinery.pkg.apis.meta.v1 as metav1
@@ -10,64 +10,17 @@ _items = [
     metav1alpha1.E2ETest{
         metadata.name: "flux-e2e-test"
         spec= {
-            crossplane.autoUpgrade.channel: "Rapid"
+            crossplane = {
+                version = "2.1.3-up.2"
+                autoUpgrade.channel = "Rapid"
+            }
             defaultConditions: ["Ready"]
             manifests: [
-                gitopsv1alpha1.XFlux {
-                    metadata = {
-                        name = "test-flux-instance"
-                    }
-                    spec = {
-                        parameters = {
-                            providerConfigName = "uptest-gitops-flux-cluster"
-                            deletionPolicy = "Delete"
-                            operators = {
-                                flux = { version = "2.16.4" }
-                                fluxSync = { version = "1.13.4" }
-                            }
-                            source = {
-                                git = {
-                                    url = "https://github.com/upbound/platform-ref-aws/"
-                                    ref = { name = "refs/heads/main" }
-                                    interval = "5m0s"
-                                    timeout = "60s"
-                                    path = "/"
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
-            extraResources: [
-                {
-                    apiVersion: "pkg.crossplane.io/v1"
-                    kind: "Configuration"
-                    metadata.name: "configuration-aws-eks"
-                    spec.package: "xpkg.upbound.io/upbound/configuration-aws-eks:v0.19.0"
-                }
-                {
-                    apiVersion: "pkg.crossplane.io/v1"
-                    kind: "Configuration"
-                    metadata.name: "configuration-aws-network"
-                    spec.package: "xpkg.upbound.io/upbound/configuration-aws-network:v0.24.0"
-                }
-                {
-                    apiVersion: "aws.upbound.io/v1beta1"
-                    kind: "ProviderConfig"
-                    metadata.name: "default"
-                    spec.credentials = {
-                        source = "Upbound"
-                        upbound = {
-                            webIdentity = {
-                                roleARN = "arn:aws:iam::609897127049:role/solutions-e2e-provider-aws"
-                            }
-                        }
-                    }
-                }
                 {
                     apiVersion: "aws.platform.upbound.io/v1alpha1"
-                    kind: "XNetwork"
+                    kind: "Network"
                     metadata.name: "configuration-gitops-flux-network"
+                    metadata.namespace: "default"
                     spec.parameters = {
                         id: "uptest-gitops-flux-cluster"
                         region: "us-west-1"
@@ -98,8 +51,9 @@ _items = [
                 }
                 {
                     apiVersion: "aws.platform.upbound.io/v1alpha1"
-                    kind: "XEKS"
+                    kind: "EKS"
                     metadata.name: "configuration-gitops-flux-cluster"
+                    metadata.namespace: "default"
                     spec = {
                         parameters = {
                             accessConfig = {
@@ -114,9 +68,68 @@ _items = [
                             region = "us-west-1"
                             version = "1.33"
                         }
-                        writeConnectionSecretToRef = {
-                            name = "configuration-gitops-flux-kubeconfig"
-                            namespace = "upbound-system"
+                    }
+                }
+                gitopsv1alpha1.Flux {
+                    metadata = {
+                        name = "test-flux-instance"
+                        namespace = "default"
+                    }
+                    spec = {
+                        parameters = {
+                            providerConfigName = "uptest-gitops-flux-cluster"
+                            managementPolicies = ["*"]
+                            operators = {
+                                flux = { version = "2.16.4" }
+                                fluxSync = { version = "1.13.4" }
+                            }
+                            source = {
+                                git = {
+                                    url = "https://github.com/upbound/platform-ref-aws/"
+                                    ref = { name = "refs/heads/main" }
+                                    interval = "5m0s"
+                                    timeout = "60s"
+                                    path = "/"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+            initResources: [
+                {
+                    apiVersion: "pkg.crossplane.io/v1"
+                    kind: "Configuration"
+                    metadata.name: "configuration-aws-eks"
+                    spec.package: "xpkg.upbound.io/upbound/configuration-aws-eks:v2.0.0"
+                }
+                {
+                    apiVersion: "pkg.crossplane.io/v1"
+                    kind: "Configuration"
+                    metadata.name: "configuration-aws-network"
+                    spec.package: "xpkg.upbound.io/upbound/configuration-aws-network:v2.0.0"
+                }
+                {
+                    apiVersion: "pkg.crossplane.io/v1"
+                    kind: "Provider"
+                    metadata.name: "upbound-provider-family-aws"
+                    spec.package: "xpkg.upbound.io/upbound/provider-family-aws:v2.3.0"
+                }
+            ]
+            extraResources: [
+                {
+                    apiVersion: "aws.m.upbound.io/v1beta1"
+                    kind: "ProviderConfig"
+                    metadata = {
+                        name = "default"
+                        namespace = "default"
+                    }
+                    spec.credentials = {
+                        source = "Upbound"
+                        upbound = {
+                            webIdentity = {
+                                roleARN = "arn:aws:iam::609897127049:role/solutions-e2e-provider-aws"
+                            }
                         }
                     }
                 }

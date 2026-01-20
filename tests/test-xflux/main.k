@@ -1,5 +1,5 @@
 
-import models.io.crossplane.helm.v1beta1 as helmv1beta1
+import models.io.crossplane.helmm.v1beta1 as helmv1beta1
 import models.io.upbound.dev.meta.v1alpha1 as metav1alpha1
 import models.k8s.apimachinery.pkg.apis.meta.v1 as metav1
 
@@ -14,8 +14,11 @@ _items = [
                         name = "release-flux"
                     }
                     spec = {
-                        providerConfigRef = { name = "configuration-gitops-flux" }
-                        deletionPolicy = "Delete"
+                        providerConfigRef = {
+                            kind = "ProviderConfig"
+                            name = "configuration-gitops-flux"
+                        }
+                        managementPolicies = ["*"]
                         forProvider = {
                             chart = {
                                 name = "flux2"
@@ -35,8 +38,11 @@ _items = [
                         name = "sync-flux"
                     }
                     spec = {
-                        providerConfigRef = { name = "configuration-gitops-flux" }
-                        deletionPolicy = "Delete"
+                        providerConfigRef = {
+                            kind = "ProviderConfig"
+                            name = "configuration-gitops-flux"
+                        }
+                        managementPolicies = ["*"]
                         forProvider = {
                             chart = {
                                 name = "flux2-sync"
@@ -69,9 +75,9 @@ _items = [
                     }
                 }
             ]
-            compositionPath: "apis/xflux/composition.yaml"
+            compositionPath: "apis/flux/composition.yaml"
             xrPath: "examples/flux-xr.yaml"
-            xrdPath: "apis/xflux/definition.yaml"
+            xrdPath: "apis/flux/definition.yaml"
             timeoutSeconds: 120
             validate: False
         }
