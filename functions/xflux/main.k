@@ -2,7 +2,12 @@
 import models.io.upbound.platform.gitops.v1alpha1 as gitopsv1alpha1
 import models.io.crossplane.helmm.v1beta1 as helmv1beta1
 
-oxr = gitopsv1alpha1.Flux{**option("params").oxr}
+# Note: avoid casting the full OXR (e.g. Flux{**oxr}) because the
+# auto-generated model types status.conditions as a typed list which is
+# incompatible with the generic list Crossplane passes at runtime.
+# Instead, keep the raw OXR and cast only the sub-fields we need.
+oxr = option("params").oxr
+_params = gitopsv1alpha1.Flux.spec.parameters{**oxr.spec?.parameters}
 
 _metadata = lambda name: str -> any {
     {
@@ -13,23 +18,23 @@ _metadata = lambda name: str -> any {
 }
 
 # Extract parameters from XR spec
-_providerConfigName = oxr.spec?.parameters?.providerConfigName or ""
-_managementPolicies = oxr.spec?.parameters?.managementPolicies or ["*"]
+_providerConfigName = _params?.providerConfigName or ""
+_managementPolicies = _params?.managementPolicies or ["*"]
 
 # Flux operator configuration
-_fluxVersion = oxr.spec?.parameters?.operators?.flux?.version or "2.10.6"
-_fluxSyncVersion = oxr.spec?.parameters?.operators?.fluxSync?.version or "1.7.2"
+_fluxVersion = _params?.operators?.flux?.version or "2.10.6"
+_fluxSyncVersion = _params?.operators?.fluxSync?.version or "1.7.2"
 
 # Git source configuration
-_gitUrl = oxr.spec?.parameters?.source?.git?.url or ""
-_gitRef = oxr.spec?.parameters?.source?.git?.ref?.name or ""
-_gitPath = oxr.spec?.parameters?.source?.git?.path or "/"
-_gitInterval = oxr.spec?.parameters?.source?.git?.interval or "5m0s"
-_gitTimeout = oxr.spec?.parameters?.source?.git?.timeout or "60s"
+_gitUrl = _params?.source?.git?.url or ""
+_gitRef = _params?.source?.git?.ref?.name or ""
+_gitPath = _params?.source?.git?.path or "/"
+_gitInterval = _params?.source?.git?.interval or "5m0s"
+_gitTimeout = _params?.source?.git?.timeout or "60s"
 
 # KubeConfig secret reference
-_kubeConfigName = oxr.spec?.parameters?.kubeConfigSecretRef?.name or ""
-_kubeConfigKey = oxr.spec?.parameters?.kubeConfigSecretRef?.key or "kubeconfig"
+_kubeConfigName = _params?.kubeConfigSecretRef?.name or ""
+_kubeConfigKey = _params?.kubeConfigSecretRef?.key or "kubeconfig"
 
 _items = [
     helmv1beta1.Release {
